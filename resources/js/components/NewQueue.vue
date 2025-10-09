@@ -1,97 +1,123 @@
 <template lang="">
-    <div class="card bg-base-200 shadow-sm h-[100vh]">
+    <div class="card bg-base-100 shadow-xl h-[100vh]">
         <div class="card-body">
-            <span class="badge badge-xs badge-info">Add new queue</span>
-            <div class="grid md:grid-cols-2 sm:grid-cols-1">
-                <div class="w-100">
-                    <select class="select w-100" v-model="form.room_id">
-                        <option disabled selected value="">Select room</option>
-                        <option
-                            v-for="(room, index) in rooms"
-                            :key="index"
-                            :value="room.id"
-                            :disabled="room.active_queue"
-                        >
-                            {{ room.room_code }}
-                        </option>
-                    </select>
-                    <fieldset class="fieldset w-100">
-                        <legend class="fieldset-legend">Enter name</legend>
+            <div class="flex items-center gap-4 mb-6">
+                <h2 class="card-title text-2xl font-bold">Queue Management</h2>
+                <span class="badge badge-primary badge-lg">Add New Queue</span>
+            </div>
+            <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-8">
+                <div class="w-100 space-y-6 bg-base-200 p-6 rounded-xl shadow-inner">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-lg font-semibold">Select Room</span>
+                        </label>
+                        <select class="select select-bordered w-full bg-white" v-model="form.room_id">
+                            <option disabled selected value="">Choose a room</option>
+                            <option
+                                v-for="(room, index) in rooms"
+                                :key="index"
+                                :value="room.id"
+                                :disabled="room.active_queue"
+                                class="font-medium"
+                            >
+                                {{ room.room_code }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text text-lg font-semibold">Walk-in Name</span>
+                        </label>
                         <input
                             type="text"
-                            class="input w-100"
-                            placeholder="Type here"
+                            class="input input-bordered w-full bg-white"
+                            placeholder="Enter name here"
                             v-model="form.name"
                         />
-                    </fieldset>
-                    <div class="mt-6">
-                        <button class="btn btn-primary" @click="handleSubmit">
-                            Submit
+                    </div>
+                    <div class="pt-4">
+                        <button class="btn btn-primary w-full btn-lg gap-2" @click="handleSubmit">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add to Queue
                         </button>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="table table-pin-rows">
-                        <!-- head -->
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>ROOM</th>
-                                <th>WALK-INS</th>
-                                <th>Arrival</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- row 1 -->
-                            <tr v-for="(queue, index) in queues" :key="index">
-                                <th>{{ index + 1 }}</th>
-                                <td>
-                                    {{
-                                        rooms.find(
-                                            (r) => r.id === queue.room_id
-                                        ).room_code
-                                    }}
-                                </td>
-                                <td>{{ queue.name }}</td>
-                                <td>
-                                    {{ queue.created_at }}
-                                </td>
-                                <td>
-                                    <button
-                                        class="btn btn-error btn-sm"
-                                        type="button"
-                                        @click="handleShowConfirmModal(queue)"
-                                    >
-                                        Set Inactive
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="bg-base-200 rounded-xl p-6 shadow-inner">
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra bg-white">
+                            <thead class="bg-base-300 text-base-content">
+                                <tr>
+                                    <th class="rounded-tl-lg">#</th>
+                                    <th>ROOM</th>
+                                    <th>WALK-INS</th>
+                                    <th>ARRIVAL TIME</th>
+                                    <th class="rounded-tr-lg">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(queue, index) in queues" :key="index" class="hover">
+                                    <th class="font-bold">{{ index + 1 }}</th>
+                                    <td class="font-medium">
+                                        <div class="badge badge-lg">{{
+                                            rooms.find(
+                                                (r) => r.id === queue.room_id
+                                            ).room_code
+                                        }}</div>
+                                    </td>
+                                    <td class="font-medium">{{ queue.name }}</td>
+                                    <td class="font-medium">
+                                        <div class="flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {{ queue.created_at }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button
+                                            class="btn btn-error btn-sm gap-2"
+                                            type="button"
+                                            @click="handleShowConfirmModal(queue)"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            Set Inactive
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- modal -->
         <dialog id="confirmation-modal" class="modal">
-            <div class="modal-box">
-                <h3 class="text-lg font-bold">Attention!</h3>
-                <p class="py-4">
+            <div class="modal-box bg-base-200">
+                <div class="flex items-center gap-3 text-error">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3 class="text-2xl font-bold">Warning!</h3>
+                </div>
+                <p class="py-6 text-lg">
                     You are about to set this queue to inactive. This action is
-                    unreverssible.
+                    irreversible.
                 </p>
                 <div class="modal-action">
-                    <form method="dialog" class="grid grid-cols-2 gap-1">
-                        <!-- if there is a button in form, it will close the modal -->
+                    <form method="dialog" class="flex gap-3 w-full">
                         <button
-                            class="btn btn-error"
+                            class="btn btn-outline flex-1 btn-lg"
                             @click="handleCancelSetInactive"
                         >
                             Cancel
                         </button>
                         <button
-                            class="btn btn-warning"
+                            class="btn btn-error flex-1 btn-lg"
                             @click="handleConfirmSetInactive"
                         >
                             Confirm
