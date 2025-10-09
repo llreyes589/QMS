@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MakeQueue;
 use App\Models\Queue;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -20,6 +21,12 @@ class QueueController extends Controller
 
     function store(){
         $queue = Queue::create(['room_id' => request()->room_id, 'name' => request()->name]);
+        MakeQueue::dispatch($queue);
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queue]);
+    }
+    
+    function getAll(){
+        $queues = Queue::all();
+        return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queues]);
     }
 }

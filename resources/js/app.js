@@ -5,6 +5,6 @@ import QueueTable from "./components/QueueTable.vue";
 import NewQueue from "./components/NewQueue.vue";
 
 const app = createApp();
-app.component("queue-table", NewQueue);
+app.component("queue-table", QueueTable);
 app.component("new-queue", NewQueue);
 app.mount("#app");

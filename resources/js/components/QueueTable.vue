@@ -13,7 +13,7 @@
                 </thead>
                 <tbody>
                     <!-- row 1 -->
-                    <tr v-for="(queue, index) in getQueues" :key="index">
+                    <tr v-for="(queue, index) in queues" :key="index">
                         <th>{{ index + 1 }}</th>
                         <td>{{ queue.name }}</td>
                         <td>{{ queue.created_at }}</td>
@@ -26,11 +26,31 @@
 </template>
 <script>
 export default {
-    props: ["queues"],
-    computed: {
-        getQueues() {
-            return this.queues;
+    mounted() {
+        window.Echo.channel("public-queues").listen(
+            ".queue.stored",
+            (event) => {
+                this.init();
+            }
+        );
+        console.log("created");
+        this.init();
+    },
+    methods: {
+        async init() {
+            try {
+                const url = "/get-all-queues";
+                const { data } = await axios.post(url);
+                this.queues = data.data;
+            } catch (error) {
+                console.error(error);
+            }
         },
+    },
+    data() {
+        return {
+            queues: [],
+        };
     },
 };
 </script>
