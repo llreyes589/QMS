@@ -34,33 +34,19 @@
                         <!-- head -->
                         <thead>
                             <tr>
-                                <th></th>
-                                <th>Name</th>
-                                <th>Job</th>
-                                <th>Favorite Color</th>
+                                <th>#</th>
+                                <th>WALK-INS</th>
+                                <th>Arrival</th>
+                                <th>Notes</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- row 1 -->
-                            <tr>
-                                <th>1</th>
-                                <td>Cy Ganderton</td>
-                                <td>Quality Control Specialist</td>
-                                <td>Blue</td>
-                            </tr>
-                            <!-- row 2 -->
-                            <tr>
-                                <th>2</th>
-                                <td>Hart Hagerty</td>
-                                <td>Desktop Support Technician</td>
-                                <td>Purple</td>
-                            </tr>
-                            <!-- row 3 -->
-                            <tr>
-                                <th>3</th>
-                                <td>Brice Swyre</td>
-                                <td>Tax Accountant</td>
-                                <td>Red</td>
+                            <tr v-for="(queue, index) in queues" :key="index">
+                                <th>{{ index + 1 }}</th>
+                                <td>{{ queue.name }}</td>
+                                <td>{{ queue.created_at }}</td>
+                                <td>{{ queue.status }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -73,12 +59,16 @@
 import axios from "axios";
 export default {
     props: ["rooms"],
+    mounted() {
+        this.init();
+    },
     data() {
         return {
             form: {
                 room_id: "",
                 name: "",
             },
+            queues: [],
         };
     },
     methods: {
@@ -90,9 +80,24 @@ export default {
                 fd.append("name", this.form.name);
                 const { data } = await axios.post(url, fd);
                 console.log({ data });
+                this.init();
+                this.clearInputs();
             } catch (error) {
                 console.error(error);
             }
+        },
+        async init() {
+            try {
+                const url = "/get-all-queues";
+                const { data } = await axios.post(url);
+                this.queues = data.data;
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        clearInputs() {
+            this.form.name = "";
+            this.form.room_id = "";
         },
     },
     computed: {
