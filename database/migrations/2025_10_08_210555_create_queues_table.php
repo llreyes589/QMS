@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('room_id')->constrained()->onDelete('cascade'); // Foreign key with ON DELETE CASCADE
             $table->text('name');
-            $table->text('status');
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
