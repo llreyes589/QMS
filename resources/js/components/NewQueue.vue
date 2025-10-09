@@ -1,8 +1,8 @@
 <template lang="">
-    <div class="card bg-base-200 shadow-sm overflow-x-auto">
+    <div class="card bg-base-200 shadow-sm h-[100vh]">
         <div class="card-body">
             <span class="badge badge-xs badge-info">Add new queue</span>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid md:grid-cols-2 sm:grid-cols-1">
                 <div class="w-100">
                     <select class="select w-100" v-model="form.room_id">
                         <option disabled selected value="">Select room</option>
@@ -10,6 +10,7 @@
                             v-for="(room, index) in rooms"
                             :key="index"
                             :value="room.id"
+                            :disabled="room.active_queue"
                         >
                             {{ room.room_code }}
                         </option>
@@ -30,29 +31,69 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="table">
+                    <table class="table table-pin-rows">
                         <!-- head -->
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>ROOM</th>
                                 <th>WALK-INS</th>
                                 <th>Arrival</th>
-                                <th>Notes</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- row 1 -->
                             <tr v-for="(queue, index) in queues" :key="index">
                                 <th>{{ index + 1 }}</th>
+                                <td>{{ rooms[queue.room_id].room_code }}</td>
                                 <td>{{ queue.name }}</td>
-                                <td>{{ queue.created_at }}</td>
-                                <td>{{ queue.status }}</td>
+                                <td>
+                                    {{ queue.created_at }}
+                                </td>
+                                <td>
+                                    <button
+                                        class="btn btn-error btn-sm"
+                                        type="button"
+                                        @click="handleShowConfirmModal(queue)"
+                                    >
+                                        Set Inactive
+                                    </button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+        <!-- modal -->
+        <dialog id="confirmation-modal" class="modal">
+            <div class="modal-box">
+                <h3 class="text-lg font-bold">Attention!</h3>
+                <p class="py-4">
+                    You are about to set this queue to inactive. This action is
+                    unreverssible.
+                </p>
+                <div class="modal-action">
+                    <form method="dialog" class="grid grid-cols-2 gap-1">
+                        <!-- if there is a button in form, it will close the modal -->
+                        <button
+                            class="btn btn-error"
+                            @click="handleCancelSetInactive"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            class="btn btn-warning"
+                            @click="handleConfirmSetInactive"
+                        >
+                            Confirm
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </dialog>
     </div>
 </template>
 <script>
@@ -69,6 +110,7 @@ export default {
                 name: "",
             },
             queues: [],
+            selected_queue: [],
         };
     },
     methods: {
@@ -98,6 +140,28 @@ export default {
         clearInputs() {
             this.form.name = "";
             this.form.room_id = "";
+        },
+        handleShowConfirmModal(queue) {
+            this.selected_queue = queue;
+            console.log("this.selected_queue", this.selected_queue);
+            document.getElementById("confirmation-modal").showModal();
+        },
+        handleCancelSetInactive() {
+            this.selected_queue = [];
+            document.getElementById("confirmation-modal").hideModal();
+        },
+        async handleConfirmSetInactive() {
+            const url = `/queues/${this.selected_queue.id}`;
+            try {
+                const { data } = await axios({
+                    url,
+                    method: "DELETE",
+                    data: null,
+                });
+                console.log({ data });
+            } catch (error) {
+                console.error(error);
+            }
         },
     },
     computed: {

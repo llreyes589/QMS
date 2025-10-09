@@ -15,7 +15,7 @@ class QueueController extends Controller
     }
 
     function create(){
-        $rooms = Room::all();
+        $rooms = Room::with('active_queue')->get();
         return view('queues.create', compact('rooms'));
     }
 
@@ -26,7 +26,13 @@ class QueueController extends Controller
     }
     
     function getAll(){
-        $queues = Queue::all();
+        $queues = Queue::where('status', 1)->get();
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queues]);
+    }
+    
+    function destroy(Queue $queue){
+        $queue->update(['status' => 0]);
+        return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.']);
+
     }
 }
