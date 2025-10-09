@@ -3,6 +3,7 @@
 use App\Events\MakeQueue;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\RoomController;
+use App\Http\Controllers\TypeController;
 use App\Models\Queue;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,8 @@ Route::name('queues')->group(function(){
 
 Route::name('rooms')->group(function(){
     Route::post('get-all-rooms', [RoomController::class, 'getAll'])->name('getAll');
+});
+
+Route::name('types')->group(function(){
+    Route::post('get-all-types', [TypeController::class, 'getAll'])->name('getAll');
 });

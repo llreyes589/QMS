@@ -45,7 +45,31 @@
                         <label class="label">
                             <span
                                 class="label-text text-base md:text-lg font-semibold"
-                                >Walk-in Name</span
+                                >Select Type</span
+                            >
+                        </label>
+                        <select
+                            class="select select-bordered w-full bg-white"
+                            v-model="form.type_id"
+                        >
+                            <option disabled selected value="">
+                                Choose type
+                            </option>
+                            <option
+                                v-for="(type, index) in types"
+                                :key="index"
+                                :value="type.id"
+                                class="font-medium"
+                            >
+                                {{ type.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span
+                                class="label-text text-base md:text-lg font-semibold"
+                                >Name</span
                             >
                         </label>
                         <input
@@ -59,6 +83,9 @@
                         <button
                             class="btn btn-primary w-full btn-lg gap-2"
                             @click="handleSubmit"
+                            :disabled="
+                                !form.name || !form.type_id || !form.room_id
+                            "
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -87,6 +114,7 @@
                                 <tr>
                                     <th class="rounded-tl-lg">#</th>
                                     <th>ROOM</th>
+                                    <th>TYPE</th>
                                     <th class="hidden md:table-cell">
                                         WALK-INS
                                     </th>
@@ -108,8 +136,19 @@
                                             {{
                                                 rooms.find(
                                                     (r) =>
-                                                        r.id === queue.room_id
+                                                        r.id === queue.type_id
                                                 ).room_code
+                                            }}
+                                        </div>
+                                    </td>
+                                    <td class="font-medium">
+                                        <div class="badge badge-lg">
+                                            {{
+                                                types.find(
+                                                    (type) =>
+                                                        type.id ===
+                                                        queue.type_id
+                                                ).name
                                             }}
                                         </div>
                                     </td>
@@ -256,11 +295,13 @@ export default {
         return {
             form: {
                 room_id: "",
+                type_id: "",
                 name: "",
             },
             queues: [],
             selected_queue: [],
             rooms: [],
+            types: [],
         };
     },
     methods: {
@@ -281,6 +322,7 @@ export default {
                 const fd = new FormData();
                 fd.append("room_id", this.form.room_id);
                 fd.append("name", this.form.name);
+                fd.append("type_id", this.form.type_id);
                 const { data } = await axios.post(url, fd);
                 this.init();
                 this.clearInputs();
@@ -293,14 +335,17 @@ export default {
                 const promises = await Promise.allSettled([
                     this.getQueues(),
                     this.getRooms(),
+                    this.getTypes(),
                 ]);
-                const [queuesData, roomsData] = promises.map((result) =>
-                    result.status === "fulfilled"
-                        ? result.value
-                        : { data: null }
+                const [queuesData, roomsData, typesData] = promises.map(
+                    (result) =>
+                        result.status === "fulfilled"
+                            ? result.value
+                            : { data: null }
                 );
                 this.queues = queuesData.data;
                 this.rooms = roomsData.data;
+                this.types = typesData.data;
             } catch (error) {
                 console.error(error);
             }
@@ -317,6 +362,15 @@ export default {
         async getRooms() {
             try {
                 const url = "/get-all-rooms";
+                const { data } = await axios.post(url);
+                return data;
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getTypes() {
+            try {
+                const url = "/get-all-types";
                 const { data } = await axios.post(url);
                 return data;
             } catch (error) {

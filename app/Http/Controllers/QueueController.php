@@ -20,7 +20,7 @@ class QueueController extends Controller
     }
 
     function store(){
-        $queue = Queue::create(['room_id' => request()->room_id, 'name' => request()->name]);
+        $queue = Queue::create(['room_id' => request()->room_id, 'name' => request()->name, 'type_id' => request()->type_id]);
         MakeQueue::dispatch($queue);
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queue]);
     }
