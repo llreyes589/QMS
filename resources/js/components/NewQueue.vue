@@ -46,7 +46,13 @@
                             <!-- row 1 -->
                             <tr v-for="(queue, index) in queues" :key="index">
                                 <th>{{ index + 1 }}</th>
-                                <td>{{ rooms[queue.room_id].room_code }}</td>
+                                <td>
+                                    {{
+                                        rooms.find(
+                                            (r) => r.id === queue.room_id
+                                        ).room_code
+                                    }}
+                                </td>
                                 <td>{{ queue.name }}</td>
                                 <td>
                                     {{ queue.created_at }}
@@ -158,7 +164,7 @@ export default {
                     method: "DELETE",
                     data: null,
                 });
-                console.log({ data });
+                this.init();
             } catch (error) {
                 console.error(error);
             }
