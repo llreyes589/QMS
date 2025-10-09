@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="corporate">
     <head>
         <title>QMS</title>
     </head>

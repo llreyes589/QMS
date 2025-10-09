@@ -7,7 +7,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::name('queues')->group(function(){
-    Route::get('queues', [QueueController::class, 'index'])->name('index');
-});
+Route::resource('queues', QueueController::class);
 
