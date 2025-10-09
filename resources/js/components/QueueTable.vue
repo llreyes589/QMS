@@ -16,7 +16,7 @@
                     <div class="text-3xl font-mono font-bold text-primary">
                         {{ currentTime }}
                     </div>
-                    <div class="text-sm text-base-content/70">
+                    <div class="text-sm text-secondary">
                         {{ currentDate }}
                     </div>
                 </div>
@@ -27,9 +27,9 @@
                 class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
             >
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <h2 class="card-title text-2xl font-bold">Current Queue</h2>
-                    <div class="badge badge-primary badge-lg animate-pulse">
-                        Live Updates
+                    <h2 class="card-title text-2xl font-bold">Current Type:</h2>
+                    <div class="badge badge-secondary badge-lg animate-pulse">
+                        {{ types.find((t) => t.id === type).name }}
                     </div>
                 </div>
                 <div class="stats shadow bg-base-200">
@@ -43,22 +43,22 @@
                 </div>
             </div>
 
-            <div class="bg-base-200 rounded-xl p-4 md:p-6 shadow-inner">
+            <div class="bg-base-200 rounded-xl p-4 md:p-2 shadow-inner">
                 <div class="overflow-x-auto">
-                    <table class="table table-lg bg-white w-full">
-                        <thead class="bg-base-300 text-base-content">
+                    <table class="table table-lg bg-white w-full table-zebra">
+                        <thead class="bg-secondary/25 text-base-content">
                             <tr>
                                 <th class="rounded-tl-lg text-base md:text-lg">
                                     #
                                 </th>
-                                <th class="text-base md:text-lg">WALK-INS</th>
+                                <th class="text-base md:text-lg">NAME</th>
                                 <th
                                     class="text-base md:text-lg hidden md:table-cell"
                                 >
                                     ARRIVAL TIME
                                 </th>
                                 <th class="rounded-tr-lg text-base md:text-lg">
-                                    STATUS
+                                    TYPE
                                 </th>
                             </tr>
                         </thead>
@@ -115,7 +115,11 @@
                                                 queue.status === 'pending',
                                         }"
                                     >
-                                        {{ queue.status }}
+                                        {{
+                                            types.find(
+                                                (t) => t.id === queue.type_id
+                                            ).name
+                                        }}
                                     </div>
                                 </td>
                             </tr>
@@ -154,6 +158,7 @@
 </template>
 <script>
 export default {
+    props: ["types"],
     mounted() {
         // Initialize websocket listener
         window.Echo.channel("public-queues").listen(
@@ -169,6 +174,12 @@ export default {
         // Start the clock
         this.updateTime();
         this.clockInterval = setInterval(this.updateTime, 1000);
+
+        // toogle Type
+        this.toogleType = setInterval(() => {
+            this.type = this.type === 2 ? 1 : 2;
+            this.init();
+        }, 10000);
     },
     unmounted() {
         // Clean up the interval when component is destroyed
@@ -179,7 +190,7 @@ export default {
     methods: {
         async init() {
             try {
-                const url = "/get-all-queues";
+                const url = `/get-all-queues?type=${this.type}`;
                 const { data } = await axios.post(url);
                 this.queues = data.data;
             } catch (error) {
@@ -223,6 +234,8 @@ export default {
             currentTime: "",
             currentDate: "",
             clockInterval: null,
+            type: 1,
+            toogleType: null,
         };
     },
 };

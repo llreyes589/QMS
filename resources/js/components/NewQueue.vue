@@ -84,7 +84,10 @@
                             class="btn btn-primary w-full btn-lg gap-2"
                             @click="handleSubmit"
                             :disabled="
-                                !form.name || !form.type_id || !form.room_id
+                                !form.name ||
+                                !form.type_id ||
+                                !form.room_id ||
+                                isSubmitting
                             "
                         >
                             <svg
@@ -115,9 +118,7 @@
                                     <th class="rounded-tl-lg">#</th>
                                     <th>ROOM</th>
                                     <th>TYPE</th>
-                                    <th class="hidden md:table-cell">
-                                        WALK-INS
-                                    </th>
+                                    <th class="hidden md:table-cell">NAME</th>
                                     <th class="hidden lg:table-cell">
                                         ARRIVAL
                                     </th>
@@ -208,7 +209,7 @@
                                 </tr>
                                 <!-- Empty state -->
                                 <tr v-if="queues.length === 0">
-                                    <td colspan="5" class="text-center py-8">
+                                    <td colspan="6" class="text-center py-8">
                                         <div
                                             class="flex flex-col items-center gap-2"
                                         >
@@ -302,6 +303,7 @@ export default {
             selected_queue: [],
             rooms: [],
             types: [],
+            isSubmitting: false,
         };
     },
     methods: {
@@ -317,6 +319,7 @@ export default {
             });
         },
         async handleSubmit() {
+            this.isSubmitting = true;
             try {
                 const url = "/queues";
                 const fd = new FormData();
@@ -328,6 +331,8 @@ export default {
                 this.clearInputs();
             } catch (error) {
                 console.error(error);
+            } finally {
+                this.isSubmitting = false;
             }
         },
         async init() {

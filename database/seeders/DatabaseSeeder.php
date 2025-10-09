@@ -21,7 +21,6 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            QueuesSeeder::class,
             RoomsSeeder::class,
             TypesSeeder::class,
         ]);

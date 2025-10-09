@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Events\MakeQueue;
 use App\Models\Queue;
 use App\Models\Room;
+use App\Models\Type;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
 {
-    function index(){
+    function index(Request $request){
         $queues = Queue::all();
-        return view('queues.index', compact('queues'));
+        if($request->has('type')){
+            $queues = Queue::where('type_id', $request->type)->get();
+        }
+        $types = Type::all();
+        return view('queues.index', compact('queues', 'types'));
     }
 
     function create(){
@@ -25,8 +30,10 @@ class QueueController extends Controller
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queue]);
     }
     
-    function getAll(){
+    function getAll(Request $request){
         $queues = Queue::where('status', 1)->get();
+        if($request->has('type'))
+            $queues = Queue::where('type_id', $request->type)->where('status', 1)->get();
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queues]);
     }
     
