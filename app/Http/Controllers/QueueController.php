@@ -32,6 +32,7 @@ class QueueController extends Controller
     
     function destroy(Queue $queue){
         $queue->update(['status' => 0]);
+        MakeQueue::dispatch($queue);
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.']);
 
     }

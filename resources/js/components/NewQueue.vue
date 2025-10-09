@@ -105,7 +105,6 @@
 <script>
 import axios from "axios";
 export default {
-    props: ["rooms"],
     mounted() {
         this.init();
     },
@@ -117,6 +116,7 @@ export default {
             },
             queues: [],
             selected_queue: [],
+            rooms: [],
         };
     },
     methods: {
@@ -127,7 +127,6 @@ export default {
                 fd.append("room_id", this.form.room_id);
                 fd.append("name", this.form.name);
                 const { data } = await axios.post(url, fd);
-                console.log({ data });
                 this.init();
                 this.clearInputs();
             } catch (error) {
@@ -136,9 +135,35 @@ export default {
         },
         async init() {
             try {
+                const promises = await Promise.allSettled([
+                    this.getQueues(),
+                    this.getRooms(),
+                ]);
+                const [queuesData, roomsData] = promises.map((result) =>
+                    result.status === "fulfilled"
+                        ? result.value
+                        : { data: null }
+                );
+                this.queues = queuesData.data;
+                this.rooms = roomsData.data;
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getQueues() {
+            try {
                 const url = "/get-all-queues";
                 const { data } = await axios.post(url);
-                this.queues = data.data;
+                return data;
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getRooms() {
+            try {
+                const url = "/get-all-rooms";
+                const { data } = await axios.post(url);
+                return data;
             } catch (error) {
                 console.error(error);
             }
@@ -149,7 +174,6 @@ export default {
         },
         handleShowConfirmModal(queue) {
             this.selected_queue = queue;
-            console.log("this.selected_queue", this.selected_queue);
             document.getElementById("confirmation-modal").showModal();
         },
         handleCancelSetInactive() {
@@ -168,11 +192,6 @@ export default {
             } catch (error) {
                 console.error(error);
             }
-        },
-    },
-    computed: {
-        getRooms() {
-            return this.rooms;
         },
     },
 };
