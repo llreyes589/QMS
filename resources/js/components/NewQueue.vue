@@ -5,17 +5,11 @@
             <div
                 class="flex flex-col md:flex-row items-center gap-4 mb-6 pb-6 border-b"
             >
-                <!-- <img
-                    src="/company-logo.svg"
-                    alt="QMS Logo"
+                <img
+                    :src="'/images/logo.jpg'"
+                    alt="Hardin Medical Clinic"
                     class="h-12 md:h-16 w-auto"
-                /> -->
-                <div class="flex flex-col text-center md:text-left">
-                    <h1 class="text-2xl md:text-3xl font-bold text-primary">
-                        Queue Management
-                    </h1>
-                    <p class="text-base-content/70">Add New Queue</p>
-                </div>
+                />
             </div>
 
             <div class="grid lg:grid-cols-2 gap-6 md:gap-8">

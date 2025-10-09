@@ -6,13 +6,11 @@
                 class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 pb-6 border-b"
             >
                 <div class="flex items-center gap-4">
-                    <!-- <img src="/company-logo.svg" alt="QMS Logo" class="h-12 md:h-16 w-auto" /> -->
-                    <div class="flex flex-col">
-                        <h1 class="text-2xl md:text-3xl font-bold text-primary">
-                            Queue Management
-                        </h1>
-                        <p class="text-base-content/70">System</p>
-                    </div>
+                    <img
+                        :src="'/images/logo.jpg'"
+                        alt="Hardin Medical Clinic"
+                        class="h-12 md:h-16 w-auto"
+                    />
                 </div>
                 <div class="flex flex-col items-end">
                     <div class="text-3xl font-mono font-bold text-primary">
