@@ -9,14 +9,11 @@
                     <img
                         :src="'/images/logo.jpg'"
                         alt="Hardin Medical Clinic"
-                        class="h-12 md:h-16 w-auto"
+                        class="h-12 md:h-20 w-auto"
                     />
                 </div>
                 <div class="flex flex-col items-end">
-                    <div class="text-3xl font-mono font-bold text-primary">
-                        {{ currentTime }}
-                    </div>
-                    <div class="text-sm text-secondary">
+                    <div class="text-4xl font-mono font-bold text-primary">
                         {{ currentDate }}
                     </div>
                 </div>
@@ -27,8 +24,10 @@
                 class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
             >
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <h2 class="card-title text-2xl font-bold">Current Type:</h2>
-                    <div class="badge badge-secondary badge-lg animate-pulse">
+                    <h2 class="card-title text-4xl font-bold">Current Type:</h2>
+                    <div
+                        class="badge badge-secondary badge-xl animate-pulse text-3xl p-6"
+                    >
                         {{ types.find((t) => t.id === type).name }}
                     </div>
                 </div>
@@ -48,17 +47,17 @@
                     <table class="table table-lg bg-white w-full table-zebra">
                         <thead class="bg-secondary/25 text-base-content">
                             <tr>
-                                <th class="rounded-tl-lg text-base md:text-lg">
+                                <th class="rounded-tl-lg text-base md:text-4xl">
                                     #
                                 </th>
-                                <th class="text-base md:text-lg">NAME</th>
+                                <th class="text-base md:text-4xl">NAME</th>
                                 <th
-                                    class="text-base md:text-lg hidden md:table-cell"
+                                    class="text-base md:text-4xl hidden md:table-cell"
                                 >
                                     ARRIVAL TIME
                                 </th>
-                                <th class="rounded-tr-lg text-base md:text-lg">
-                                    TYPE
+                                <th class="rounded-tr-lg text-base md:text-4xl">
+                                    ROOM
                                 </th>
                             </tr>
                         </thead>
@@ -68,10 +67,10 @@
                                 :key="index"
                                 class="hover transition-colors duration-200"
                             >
-                                <th class="font-bold text-base md:text-lg">
+                                <th class="font-bold text-base md:text-4xl">
                                     {{ index + 1 }}
                                 </th>
-                                <td class="font-medium text-base md:text-lg">
+                                <td class="font-medium text-base md:text-4xl">
                                     <div
                                         class="flex flex-col md:flex-row md:items-center gap-1 md:gap-2"
                                     >
@@ -85,7 +84,9 @@
                                     </div>
                                 </td>
                                 <td class="font-medium hidden md:table-cell">
-                                    <div class="flex items-center gap-2">
+                                    <div
+                                        class="flex items-center gap-2 md:text-4xl"
+                                    >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             class="h-5 w-5 text-primary"
@@ -104,21 +105,11 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div
-                                        class="badge badge-lg"
-                                        :class="{
-                                            'badge-success':
-                                                queue.status === 'active',
-                                            'badge-error':
-                                                queue.status === 'inactive',
-                                            'badge-warning':
-                                                queue.status === 'pending',
-                                        }"
-                                    >
+                                    <div class="md:text-4xl">
                                         {{
-                                            types.find(
-                                                (t) => t.id === queue.type_id
-                                            ).name
+                                            rooms.find(
+                                                (t) => t.id === queue.room_id
+                                            ).room_code
                                         }}
                                     </div>
                                 </td>
@@ -158,7 +149,7 @@
 </template>
 <script>
 export default {
-    props: ["types"],
+    props: ["types", "rooms"],
     mounted() {
         // Initialize websocket listener
         window.Echo.channel("public-queues").listen(
@@ -179,7 +170,8 @@ export default {
         this.toogleType = setInterval(() => {
             this.type = this.type === 2 ? 1 : 2;
             this.init();
-        }, 10000);
+            // 30,000 = 30sec
+        }, 30000);
     },
     unmounted() {
         // Clean up the interval when component is destroyed
@@ -223,8 +215,6 @@ export default {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
-                month: "short",
-                day: "numeric",
             });
         },
     },

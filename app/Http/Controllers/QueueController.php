@@ -16,7 +16,8 @@ class QueueController extends Controller
             $queues = Queue::where('type_id', $request->type)->get();
         }
         $types = Type::all();
-        return view('queues.index', compact('queues', 'types'));
+        $rooms = Room::all();
+        return view('queues.index', compact('queues', 'types', 'rooms'));
     }
 
     function create(){

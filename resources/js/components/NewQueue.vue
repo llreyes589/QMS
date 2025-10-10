@@ -137,7 +137,7 @@
                                             {{
                                                 rooms.find(
                                                     (r) =>
-                                                        r.id === queue.type_id
+                                                        r.id === queue.room_id
                                                 ).room_code
                                             }}
                                         </div>
@@ -385,6 +385,7 @@ export default {
         clearInputs() {
             this.form.name = "";
             this.form.room_id = "";
+            this.form.type_id = "";
         },
         handleShowConfirmModal(queue) {
             this.selected_queue = queue;
