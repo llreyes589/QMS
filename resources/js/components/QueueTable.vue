@@ -9,8 +9,15 @@
                     <img
                         :src="'/images/logo.jpg'"
                         alt="Hardin Medical Clinic"
-                        class="h-12 md:h-20 w-auto"
+                        class="h-12 md:h-28 w-auto"
                     />
+                </div>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="badge badge-secondary badge-xl rounded-4xl animate-pulse text-5xl pt-6 px-6 pb-8"
+                    >
+                        {{ types.find((t) => t.id === type).name }}
+                    </div>
                 </div>
                 <div class="flex flex-col items-end">
                     <div class="text-4xl font-mono font-bold text-primary">
@@ -20,7 +27,7 @@
             </div>
 
             <!-- Queue Status Header -->
-            <div
+            <!-- <div
                 class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
             >
                 <div class="flex flex-col md:flex-row items-center gap-4">
@@ -40,7 +47,7 @@
                         <div class="stat-desc">Updated in Real-time</div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="bg-base-200 rounded-xl p-4 md:p-2 shadow-inner">
                 <div class="overflow-x-auto">
