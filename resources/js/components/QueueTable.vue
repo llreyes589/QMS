@@ -156,7 +156,7 @@
 </template>
 <script>
 export default {
-    props: ["types", "rooms"],
+    props: ["types", "rooms", "time_interval"],
     mounted() {
         // Initialize websocket listener
         window.Echo.channel("public-queues").listen(
@@ -178,13 +178,19 @@ export default {
             this.type = this.type === 2 ? 1 : 2;
             this.init();
             // 30,000 = 30sec
-        }, 30000);
+        }, this.getTimeInterval.value);
+        console.log(this.getTimeInterval);
     },
     unmounted() {
         // Clean up the interval when component is destroyed
         if (this.clockInterval) {
             clearInterval(this.clockInterval);
         }
+    },
+    computed: {
+        getTimeInterval() {
+            return this.time_interval;
+        },
     },
     methods: {
         async init() {

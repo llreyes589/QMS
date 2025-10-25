@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use App\Events\MakeQueue;
 use App\Models\Queue;
 use App\Models\Room;
+use App\Models\Setting;
 use App\Models\Type;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
 {
     function index(Request $request){
+        // must be use in the future settings
+        // get time_interval object
+        $time_interval = Setting::select('value')->where('title', 'time_interval')->first();
         $queues = Queue::all();
         if($request->has('type')){
             $queues = Queue::where('type_id', $request->type)->get();
         }
         $types = Type::all();
         $rooms = Room::all();
-        return view('queues.index', compact('queues', 'types', 'rooms'));
+        return view('queues.index', compact('queues', 'types', 'rooms', 'time_interval'));
     }
 
     function create(){
