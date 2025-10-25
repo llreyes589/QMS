@@ -1,5 +1,12 @@
 <template lang="">
     <div class="card bg-base-100 shadow-xl min-h-screen">
+        <!-- toast -->
+        <div class="toast toast-top toast-center" v-if="response.message">
+            <div class="alert alert-success text-white">
+                <span>{{ response.message }}. Redirecting...</span>
+            </div>
+        </div>
+
         <div class="card-body p-4 md:p-8">
             <!-- Header with Logo -->
             <div
@@ -81,6 +88,7 @@
                     </div>
                     <div class="pt-4">
                         <button
+                            v-if="!getQueue"
                             class="btn btn-primary w-full btn-lg gap-2"
                             @click="handleSubmit"
                             :disabled="
@@ -90,21 +98,15 @@
                                 isSubmitting
                             "
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                />
-                            </svg>
                             Add to Queue
+                        </button>
+                        <button
+                            v-else
+                            class="btn btn-secondary w-full btn-lg gap-2"
+                            @click="handleUpdate(getQueue.id)"
+                            :disabled="!form.name || isSubmitting"
+                        >
+                            Update Queue
                         </button>
                     </div>
                 </div>
@@ -179,7 +181,17 @@
                                             {{ formatTime(queue.created_at) }}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td nowrap>
+                                        <button
+                                            class="btn btn-primary btn-sm gap-2"
+                                            type="button"
+                                            @click="handleEditQueue(queue.id)"
+                                        >
+                                            ✏️
+                                            <span class="hidden sm:inline"
+                                                >Edit Details</span
+                                            >
+                                        </button>
                                         <button
                                             class="btn btn-error btn-sm gap-2"
                                             type="button"
@@ -289,6 +301,7 @@
 <script>
 import axios from "axios";
 export default {
+    props: ["queue"],
     mounted() {
         this.init();
     },
@@ -304,6 +317,10 @@ export default {
             rooms: [],
             types: [],
             isSubmitting: false,
+            response: {
+                status: null,
+                message: null,
+            },
         };
     },
     methods: {
@@ -406,6 +423,44 @@ export default {
                 this.init();
             } catch (error) {
                 console.error(error);
+            }
+        },
+        handleEditQueue(queue_id) {
+            window.location.href = `/queues/${queue_id}/edit`;
+        },
+
+        async handleUpdate(queue_id) {
+            this.isSubmitting = true;
+            try {
+                const url = `/queues/${queue_id}`;
+                const fd = new FormData();
+                fd.append("_method", "put"); // This is the key for method spoofing
+                fd.append("room_id", this.form.room_id);
+                fd.append("name", this.form.name);
+                fd.append("type_id", this.form.type_id);
+                const { data } = await axios.post(url, fd);
+                if (data.statusCode === 200) {
+                    this.response.status = data.statusCode;
+                    this.response.message = data.message;
+                    window.location.href = "/queues/create";
+                }
+                this.init();
+                this.clearInputs();
+            } catch (error) {
+                console.error(error);
+            } finally {
+                this.isSubmitting = false;
+            }
+        },
+    },
+    computed: {
+        getQueue() {
+            if (this.queue) {
+                this.form.name = this.queue.name;
+                this.form.room_id = this.queue.room_id;
+                this.form.type_id = this.queue.type_id;
+                console.log(this.queue);
+                return this.queue;
             }
         },
     },

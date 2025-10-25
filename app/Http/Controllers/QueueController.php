@@ -24,11 +24,25 @@ class QueueController extends Controller
         $rooms = Room::with('active_queue')->get();
         return view('queues.create', compact('rooms'));
     }
+    
+    function edit(Queue $queue){
+        $rooms = Room::with('active_queue')->get();
+        $queue->load('room', 'type');    
+        return view('queues.edit', compact('rooms', 'queue'));
+
+    }
 
     function store(){
         $queue = Queue::create(['room_id' => request()->room_id, 'name' => request()->name, 'type_id' => request()->type_id]);
         MakeQueue::dispatch($queue);
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queue]);
+    }
+    
+    function update(Queue $queue, Request $request){
+        $queue->update($request->except('_method'));
+        MakeQueue::dispatch($queue);
+        return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queue]);
+
     }
     
     function getAll(Request $request){
