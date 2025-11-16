@@ -149,6 +149,7 @@ export default {
         window.Echo.channel("public-queues").listen(
             ".queue.stored",
             (event) => {
+                console.log({ event });
                 this.init();
             }
         );
