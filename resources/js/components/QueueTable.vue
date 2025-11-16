@@ -12,15 +12,15 @@
                         class="h-12 md:h-28 w-auto"
                     />
                 </div>
-                <div class="flex items-center gap-4">
+                <!-- <div class="flex items-center gap-4">
                     <div
-                        class="badge badge-secondary badge-xl rounded-4xl animate-pulse text-5xl pt-6 px-6 pb-8"
+                        class="badge badge-secondary badge-xl rounded-5xl animate-pulse text-5xl pt-6 px-6 pb-8"
                     >
                         {{ types.find((t) => t.id === type).name }}
                     </div>
-                </div>
+                </div> -->
                 <div class="flex flex-col items-end">
-                    <div class="text-4xl font-mono font-bold text-primary">
+                    <div class="text-5xl font-mono font-bold text-primary">
                         {{ currentDate }}
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                 class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6"
             >
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <h2 class="card-title text-4xl font-bold">Current Type:</h2>
+                    <h2 class="card-title text-5xl font-bold">Current Type:</h2>
                     <div
                         class="badge badge-secondary badge-xl animate-pulse text-3xl p-6"
                     >
@@ -54,65 +54,52 @@
                     <table class="table table-lg bg-white w-full table-zebra">
                         <thead class="bg-secondary/25 text-base-content">
                             <tr>
-                                <th class="rounded-tl-lg text-base md:text-4xl">
+                                <th class="rounded-tl-lg text-base md:text-5xl">
                                     #
                                 </th>
-                                <th class="text-base md:text-4xl">NAME</th>
+                                <th class="text-base md:text-5xl">NAME</th>
                                 <th
-                                    class="text-base md:text-4xl hidden md:table-cell"
+                                    class="text-base md:text-5xl hidden md:table-cell"
                                 >
                                     ARRIVAL TIME
                                 </th>
-                                <th class="rounded-tr-lg text-base md:text-4xl">
+                                <th class="rounded-tr-lg text-base md:text-5xl">
                                     ROOM
                                 </th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="font-extrabold">
                             <tr
                                 v-for="(queue, index) in queues"
                                 :key="index"
                                 class="hover transition-colors duration-200"
                             >
-                                <th class="font-bold text-base md:text-4xl">
+                                <th class="font-bold text-base md:text-5xl">
                                     {{ index + 1 }}
                                 </th>
-                                <td class="font-medium text-base md:text-4xl">
+                                <td class="text-base md:text-5xl">
                                     <div
                                         class="flex flex-col md:flex-row md:items-center gap-1 md:gap-2"
                                     >
                                         <span>{{ queue.name }}</span>
                                         <!-- Mobile-only arrival time -->
                                         <span
-                                            class="text-sm text-base-content/70 md:hidden"
+                                            class="text-base-content/70 md:hidden"
                                         >
                                             {{ formatTime(queue.created_at) }}
                                         </span>
                                     </div>
                                 </td>
-                                <td class="font-medium hidden md:table-cell">
+                                <td class="hidden md:table-cell">
                                     <div
-                                        class="flex items-center gap-2 md:text-4xl"
+                                        class="flex items-center gap-2 md:text-5xl"
                                     >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="h-5 w-5 text-primary"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
+                                        🕑
                                         {{ formatTime(queue.created_at) }}
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="md:text-4xl">
+                                    <div class="md:text-5xl">
                                         {{
                                             rooms.find(
                                                 (t) => t.id === queue.room_id
@@ -174,12 +161,12 @@ export default {
         this.clockInterval = setInterval(this.updateTime, 1000);
 
         // toogle Type
-        this.toogleType = setInterval(() => {
-            this.type = this.type === 2 ? 1 : 2;
-            this.init();
-            // 30,000 = 30sec
-        }, this.getTimeInterval.value);
-        console.log(this.getTimeInterval);
+        // this.toogleType = setInterval(() => {
+        //     this.type = this.type === 2 ? 1 : 2;
+        //     this.init();
+        //     // 30,000 = 30sec
+        // }, this.getTimeInterval.value);
+        // console.log(this.getTimeInterval);
     },
     unmounted() {
         // Clean up the interval when component is destroyed
