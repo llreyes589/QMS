@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoomsSeeder::class,
             TypesSeeder::class,
+            TimeIntervalSeeder::class
         ]);
     }
 }

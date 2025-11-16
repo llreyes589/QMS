@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 
 class QueueController extends Controller
 {
+
     function index(Request $request){
         // must be use in the future settings
         // get time_interval object
@@ -50,9 +51,9 @@ class QueueController extends Controller
     }
     
     function getAll(Request $request){
-        $queues = Queue::where('status', 1)->get();
-        if($request->has('type'))
-            $queues = Queue::where('type_id', $request->type)->where('status', 1)->get();
+        $queues = Queue::where('status', 1)->where('room_id', '!=', 0)->get();
+        if($request->has('encoder'))
+            $queues = Queue::where('status', 1)->get();
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.', 'data' => $queues]);
     }
     

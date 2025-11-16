@@ -182,7 +182,7 @@ export default {
     methods: {
         async init() {
             try {
-                const url = `/get-all-queues?type=${this.type}`;
+                const url = `/get-all-queues`;
                 const { data } = await axios.post(url);
                 this.queues = data.data;
             } catch (error) {

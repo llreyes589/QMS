@@ -37,6 +37,9 @@
                             <option disabled selected value="">
                                 Choose a room
                             </option>
+                            <option value="0" class="font-medium">
+                                Pending
+                            </option>
                             <option
                                 v-for="(room, index) in rooms"
                                 :key="index"
@@ -135,7 +138,10 @@
                                 >
                                     <th class="font-bold">{{ index + 1 }}</th>
                                     <td class="font-medium">
-                                        <div class="badge badge-lg">
+                                        <div
+                                            class="badge badge-lg"
+                                            v-if="queue.room_id > 0"
+                                        >
                                             {{
                                                 rooms.find(
                                                     (r) =>
@@ -143,6 +149,7 @@
                                                 ).room_code
                                             }}
                                         </div>
+                                        <div v-else>Pending</div>
                                     </td>
                                     <td class="font-medium">
                                         <div class="badge badge-lg">
@@ -374,7 +381,7 @@ export default {
         },
         async getQueues() {
             try {
-                const url = "/get-all-queues";
+                const url = "/get-all-queues?encoder=true";
                 const { data } = await axios.post(url);
                 return data;
             } catch (error) {

@@ -16,7 +16,7 @@ class TimeIntervalSeeder extends Seeder
         Setting::create([
             'title' => 'time_interval',
             'value' => 30000,
-            'description' => "[REFRESH PAGE REQUIRED] Time interval to switch between Walk-in and Appoinment type. Note: the value must be in millisecond."
+            'description' => "The value must be in millisecond. Ex: n*1000"
         ]);
     }
 }
