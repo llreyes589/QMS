@@ -73,6 +73,10 @@
                                 v-for="(queue, index) in queues"
                                 :key="index"
                                 class="hover transition-colors duration-200"
+                                :class="
+                                    queue?.id === added_queue?.id &&
+                                    'animate-pulse'
+                                "
                             >
                                 <th class="font-bold text-base md:text-5xl">
                                     {{ index + 1 }}
@@ -101,9 +105,8 @@
                                 <td>
                                     <div class="md:text-5xl">
                                         {{
-                                            rooms.find(
-                                                (t) => t.id === queue.room_id
-                                            ).room_code
+                                            findRoomDetails(queue.room_id)
+                                                .room_code
                                         }}
                                     </div>
                                 </td>
@@ -146,10 +149,28 @@ export default {
     props: ["types", "rooms", "time_interval"],
     mounted() {
         // Initialize websocket listener
+        console.log(this.getTimeInterval);
         window.Echo.channel("public-queues").listen(
             ".queue.stored",
-            (event) => {
-                console.log({ event });
+            ({ que }) => {
+                this.added_queue = que;
+                const { room_code } = this.findRoomDetails(que.room_id);
+                const text = `${que.name}: please proceed to room: ${room_code}`;
+                const utterance = new SpeechSynthesisUtterance(text);
+                speechSynthesis.speak(utterance);
+
+                // time interval
+                let count = 0;
+                const queueInterval = setInterval(() => {
+                    count++;
+                    if (count % 2 === 0) speechSynthesis.speak(utterance);
+                    // console.log({ count });
+                    if (count === this.getTimeInterval / 1000) {
+                        this.added_queue = null;
+                        clearInterval(queueInterval);
+                    }
+                }, this.getTimeInterval);
+
                 this.init();
             }
         );
@@ -160,14 +181,6 @@ export default {
         // Start the clock
         this.updateTime();
         this.clockInterval = setInterval(this.updateTime, 1000);
-
-        // toogle Type
-        // this.toogleType = setInterval(() => {
-        //     this.type = this.type === 2 ? 1 : 2;
-        //     this.init();
-        //     // 30,000 = 30sec
-        // }, this.getTimeInterval.value);
-        // console.log(this.getTimeInterval);
     },
     unmounted() {
         // Clean up the interval when component is destroyed
@@ -177,7 +190,7 @@ export default {
     },
     computed: {
         getTimeInterval() {
-            return this.time_interval;
+            return this.time_interval.value;
         },
     },
     methods: {
@@ -218,6 +231,9 @@ export default {
                 hour12: true,
             });
         },
+        findRoomDetails(room_id) {
+            return this.rooms.find((t) => t.id === room_id);
+        },
     },
     data() {
         return {
@@ -227,6 +243,8 @@ export default {
             clockInterval: null,
             type: 1,
             toogleType: null,
+            added_queue: null,
+            countdown_time: 0,
         };
     },
 };
