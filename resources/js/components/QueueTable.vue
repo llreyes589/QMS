@@ -417,9 +417,19 @@ export default {
             // Reset to first page when items per page changes
             this.currentPage = 1;
         },
-        queues() {
-            // Reset to first page when data changes
-            this.currentPage = 1;
+        // Watch for queues change to detect new data and navigate
+        queues(newQueues, oldQueues) {
+            const oldLen = (oldQueues || []).length;
+            const newLen = (newQueues || []).length;
+            if (newLen > oldLen) {
+                // New data added -> go to last page so new items are visible
+                this.currentPage = this.totalPages;
+                // also ensure scroll resets for the new page
+                this.$nextTick(() => this.scrollToTopOfTable());
+            } else {
+                // No new items: clamp current page to available pages
+                this.currentPage = Math.min(this.currentPage, this.totalPages);
+            }
         },
     },
     data() {
@@ -440,7 +450,7 @@ export default {
             isFlipping: false,
             autoFlipInterval: null,
             // ms between auto flips
-            autoFlipDelay: 10000,
+            autoFlipDelay: 30000,
         };
     },
 };

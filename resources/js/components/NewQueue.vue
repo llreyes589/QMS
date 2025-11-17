@@ -37,9 +37,6 @@
                             <option disabled selected value="">
                                 Choose a room
                             </option>
-                            <option value="0" class="font-medium">
-                                Pending
-                            </option>
                             <option
                                 v-for="(room, index) in rooms"
                                 :key="index"

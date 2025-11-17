@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('queues', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('room_id')->constrained()->onDelete('cascade'); // Foreign key with ON DELETE CASCADE
-            $table->foreignId('room_id');
+            $table->foreignId('room_id')->constrained()->onDelete('cascade'); // Foreign key with ON DELETE CASCADE
+            // $table->foreignId('room_id');
             $table->text('name');
             $table->boolean('status')->default(1);
             $table->timestamps();
