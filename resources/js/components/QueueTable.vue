@@ -51,18 +51,14 @@
 
             <div class="bg-base-200 rounded-xl p-4 md:p-2 shadow-inner">
                 <div class="overflow-x-auto">
-                    <table class="table table-lg bg-white w-full table-zebra">
+                    <table class="table table-lg bg-white w-full">
                         <thead class="bg-secondary/25 text-base-content">
                             <tr>
                                 <th class="rounded-tl-lg text-base md:text-5xl">
                                     #
                                 </th>
                                 <th class="text-base md:text-5xl">NAME</th>
-                                <th
-                                    class="text-base md:text-5xl hidden md:table-cell"
-                                >
-                                    ARRIVAL TIME
-                                </th>
+
                                 <th class="rounded-tr-lg text-base md:text-5xl">
                                     ROOM
                                 </th>
@@ -74,8 +70,9 @@
                                 :key="index"
                                 class="hover transition-colors duration-200"
                                 :class="
-                                    queue?.id === added_queue?.id &&
-                                    'animate-pulse'
+                                    added_queue.find((q) => q.id === queue.id)
+                                        ?.remaining_time > 0 &&
+                                    'animate-pulse bg-secondary text-white'
                                 "
                             >
                                 <th class="font-bold text-base md:text-5xl">
@@ -92,14 +89,6 @@
                                         >
                                             {{ formatTime(queue.created_at) }}
                                         </span>
-                                    </div>
-                                </td>
-                                <td class="hidden md:table-cell">
-                                    <div
-                                        class="flex items-center gap-2 md:text-5xl"
-                                    >
-                                        🕑
-                                        {{ formatTime(queue.created_at) }}
                                     </div>
                                 </td>
                                 <td>
@@ -148,32 +137,59 @@
 export default {
     props: ["types", "rooms", "time_interval"],
     mounted() {
-        // Initialize websocket listener
-        console.log(this.getTimeInterval);
+        const synth = window.speechSynthesis;
         window.Echo.channel("public-queues").listen(
             ".queue.stored",
             ({ que }) => {
-                this.added_queue = que;
-                const { room_code } = this.findRoomDetails(que.room_id);
-                const text = `${que.name}: please proceed to room: ${room_code}`;
-                const utterance = new SpeechSynthesisUtterance(text);
-                speechSynthesis.speak(utterance);
+                const interval = this.getTimeInterval / 1000;
+                que["remaining_time"] = interval;
+                if (synth.onvoiceschanged !== undefined) {
+                    synth.onvoiceschanged = this.callQueue({
+                        queue: que,
+                        synth,
+                    });
+                } else {
+                    // If onvoiceschanged is not supported or already fired, try to populate immediately
+                    this.callQueue({ queue: que, synth });
+                }
+                this.added_queue.push(que);
 
                 // time interval
-                let count = 0;
-                const queueInterval = setInterval(() => {
-                    count++;
-                    if (count % 2 === 0) speechSynthesis.speak(utterance);
-                    // console.log({ count });
-                    if (count === this.getTimeInterval / 1000) {
-                        this.added_queue = null;
-                        clearInterval(queueInterval);
-                    }
-                }, this.getTimeInterval);
-
                 this.init();
             }
         );
+        let count;
+        const queueInterval = setInterval(() => {
+            // console.log({ que });
+            count++;
+            // if (count <= 3) this.callQueue({ queue: que, synth });
+
+            this.added_queue = this.added_queue
+                ?.map((q) => {
+                    if (q.remaining_time === 0) {
+                        console.log(
+                            this.added_queue?.findIndex(
+                                (que) => que.id === q.id
+                            )
+                        );
+                        this.added_queue?.splice(
+                            this.added_queue?.findIndex(
+                                (que) => que.id === q.id
+                            ),
+                            1
+                        );
+                        // clearInterval(queueInterval);
+                    }
+                    return {
+                        ...q,
+                        remaining_time: q.remaining_time - 1,
+                    };
+                })
+                .filter((q) => q.remaining_time > 0);
+            // clearInterval(queueInterval);
+            // if (count === interval) {
+            // }
+        }, 1000);
 
         // Initialize data
         this.init();
@@ -234,6 +250,27 @@ export default {
         findRoomDetails(room_id) {
             return this.rooms.find((t) => t.id === room_id);
         },
+        callQueue({ queue, synth }) {
+            const voices = synth.getVoices();
+
+            const { room_code } = this.findRoomDetails(queue.room_id);
+            const text = `${queue.name}: please proceed to room: ${room_code}`;
+            // const utterance = new SpeechSynthesisUtterance(text);
+            const selectedVoice = voices.find(
+                (voice) =>
+                    voice.lang === "en-US" && voice.name.includes("Google")
+            ); // Or any other criteria
+            // console.log({ selectedVoice });
+            if (selectedVoice) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = selectedVoice;
+                synth.speak(utterance);
+            } else {
+                console.warn("No suitable voice found. Using default voice.");
+                const utterance = new SpeechSynthesisUtterance(text);
+                synth.speak(utterance);
+            }
+        },
     },
     data() {
         return {
@@ -243,7 +280,7 @@ export default {
             clockInterval: null,
             type: 1,
             toogleType: null,
-            added_queue: null,
+            added_queue: [],
             countdown_time: 0,
         };
     },
