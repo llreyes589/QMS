@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\InactiveQueue;
 use App\Events\MakeQueue;
 use App\Models\Queue;
 use App\Models\Room;
@@ -61,7 +62,7 @@ class QueueController extends Controller
     
     function destroy(Queue $queue){
         $queue->update(['status' => 0]);
-        MakeQueue::dispatch($queue);
+        InactiveQueue::dispatch($queue);
         return response()->json(['statusCode'=> 200, 'message' => 'Successfully processed.']);
 
     }

@@ -169,6 +169,12 @@ export default {
                 this.init();
             }
         );
+        window.Echo.channel("public-queues").listen(
+            ".queue.inactive",
+            ({ _ }) => {
+                this.init();
+            }
+        );
         const queueInterval = setInterval(() => {
             this.added_queue = this.added_queue
                 ?.map((q) => {
