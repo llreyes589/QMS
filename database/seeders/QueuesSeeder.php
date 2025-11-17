@@ -16,11 +16,13 @@ class QueuesSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create();
-        foreach (range(1, 10) as $index) {
+        foreach (range(1, 8) as $index) {
             Queue::create([
                 'room_id' => rand(1, 28),
                 'name' => $faker->name,
                 'status' => 1,
+                'room_id' => rand(1, 28),
+                "type_id" => rand(1,2)
             ]);
         }
     }
