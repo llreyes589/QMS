@@ -9,7 +9,7 @@
                     <img
                         :src="'/images/logo.jpg'"
                         alt="Hardin Medical Clinic"
-                        class="h-12 md:h-28 w-auto"
+                        class="h-12 md:h-28 w-auto xl:h-52"
                     />
                 </div>
                 <!-- <div class="flex items-center gap-4">
@@ -20,7 +20,9 @@
                     </div>
                 </div> -->
                 <div class="flex flex-col items-end">
-                    <div class="text-5xl font-mono font-bold text-primary">
+                    <div
+                        class="xl:text-5xl lg:text-2xl font-mono font-bold text-primary"
+                    >
                         {{ currentDate }}
                     </div>
                 </div>
@@ -153,25 +155,24 @@ export default {
                     this.callQueue({ queue: que, synth });
                 }
                 this.added_queue.push(que);
+                let count = 1;
+                const callInterval = setInterval(() => {
+                    count++;
+                    if (count <= 3) {
+                        this.callQueue({ queue: que, synth });
+                    } else {
+                        clearInterval(callInterval);
+                    }
+                }, 5000);
 
                 // time interval
                 this.init();
             }
         );
-        let count;
         const queueInterval = setInterval(() => {
-            // console.log({ que });
-            count++;
-            // if (count <= 3) this.callQueue({ queue: que, synth });
-
             this.added_queue = this.added_queue
                 ?.map((q) => {
                     if (q.remaining_time === 0) {
-                        console.log(
-                            this.added_queue?.findIndex(
-                                (que) => que.id === q.id
-                            )
-                        );
                         this.added_queue?.splice(
                             this.added_queue?.findIndex(
                                 (que) => que.id === q.id
@@ -180,6 +181,7 @@ export default {
                         );
                         // clearInterval(queueInterval);
                     }
+
                     return {
                         ...q,
                         remaining_time: q.remaining_time - 1,
