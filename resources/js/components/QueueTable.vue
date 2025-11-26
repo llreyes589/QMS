@@ -156,11 +156,12 @@ export default {
     props: ["types", "rooms", "time_interval"],
     mounted() {
         const synth = window.speechSynthesis;
+        const interval = this.getTimeInterval / 1000;
         window.Echo.channel("public-queues").listen(
             ".queue.stored",
             ({ que }) => {
-                const interval = this.getTimeInterval / 1000;
                 que["remaining_time"] = interval;
+                this.added_queue.push(que);
                 if (synth.onvoiceschanged !== undefined) {
                     synth.onvoiceschanged = this.callQueue({
                         queue: que,
@@ -170,7 +171,6 @@ export default {
                     // If onvoiceschanged is not supported or already fired, try to populate immediately
                     this.callQueue({ queue: que, synth });
                 }
-                this.added_queue.push(que);
                 let count = 1;
                 const callInterval = setInterval(() => {
                     count++;
