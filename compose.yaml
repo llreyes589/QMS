@@ -1,11 +1,11 @@
 services:
     laravel.test:
-        build:
-            context: "./vendor/laravel/sail/runtimes/8.5"
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: "${WWWGROUP}"
-        image: "qms-app"
+        # build:
+        #     context: "./vendor/laravel/sail/runtimes/8.5"
+        #     dockerfile: Dockerfile
+        #     args:
+        #         WWWGROUP: "${WWWGROUP}"
+        image: "clarenista/qms-app:latest"
         extra_hosts:
             - "host.docker.internal:host-gateway"
         ports:
@@ -22,7 +22,7 @@ services:
         depends_on:
             - mysql
     reverb-worker:
-        image: "qms-app"
+        image: "clarenista/qms-app:latest"
         extra_hosts:
             - "host.docker.internal:host-gateway"
         container_name: reverb_worker
@@ -39,7 +39,7 @@ services:
             - mysql
             - reverb
     reverb:
-        image: "qms-app"
+        image: "clarenista/qms-app:latest"
         extra_hosts:
             - "host.docker.internal:host-gateway"
         container_name: reverb
