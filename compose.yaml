@@ -1,66 +1,30 @@
 services:
-    laravel.test:
-        # build:
-        #     context: "./vendor/laravel/sail/runtimes/8.5"
-        #     dockerfile: Dockerfile
-        #     args:
-        #         WWWGROUP: "${WWWGROUP}"
-        image: "clarenista/qms-app:latest"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        ports:
-            - "${APP_PORT:-80}:80"
-            - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
-        environment:
-            WWWUSER: "${WWWUSER}"
-            LARAVEL_SAIL: 1
-            IGNITION_LOCAL_SITES_PATH: "${PWD}"
+    # Main Laravel Application
+    app:
+        build: .
+        container_name: laravel-app
+        restart: unless-stopped
         volumes:
-            - ".:/var/www/html"
+            - ./:/var/www
         networks:
-            - sail
-        depends_on:
-            - mysql
-    reverb-worker:
-        image: "clarenista/qms-app:latest"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        container_name: reverb_worker
-        command: "php artisan queue:work --sleep=3 --tries=3 --timeout=90"
-        environment:
-            WWWUSER: "${WWWUSER}"
-            LARAVEL_SAIL: 1
-            IGNITION_LOCAL_SITES_PATH: "${PWD}"
-        volumes:
-            - ".:/var/www/html"
-        networks:
-            - sail
-        depends_on:
-            - mysql
-            - reverb
-    reverb:
-        image: "clarenista/qms-app:latest"
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
-        container_name: reverb
-        ports:
-            - "${REVERB_PORT:-8080}:8080"
-        command: "php artisan reverb:start --debug"
-        environment:
-            WWWUSER: "${WWWUSER}"
-            LARAVEL_SAIL: 1
-            IGNITION_LOCAL_SITES_PATH: "${PWD}"
-        volumes:
-            - ".:/var/www/html"
-        networks:
-            - sail
-        depends_on:
-            - mysql
+            - app-network
 
-    mysql:
-        image: "mysql:8.4"
+    # Nginx Web Server
+    web:
+        image: nginx:stable-alpine
         ports:
-            - "${FORWARD_DB_PORT:-3306}:3306"
+            - "80:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx:/etc/nginx/conf.d
+        depends_on:
+            - app
+        networks:
+            - app-network
+
+    # MySQL Database
+    mysql:
+        image: mysql:8.0
         environment:
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
             MYSQL_ROOT_HOST: "%"
@@ -69,22 +33,35 @@ services:
             MYSQL_PASSWORD: "${DB_PASSWORD}"
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
             MYSQL_EXTRA_OPTIONS: "${MYSQL_EXTRA_OPTIONS:-}"
-        volumes:
-            - "sail-mysql:/var/lib/mysql"
-            - "./vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh"
+        ports:
+            - "3306:3306"
         networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - mysqladmin
-                - ping
-                - "-p${DB_PASSWORD}"
-            retries: 3
-            timeout: 5s
+            - app-network
+
+    # Queue Worker
+    worker:
+        build: .
+        command: php artisan queue:work --tries=3
+        restart: unless-stopped
+        depends_on:
+            - app
+            - mysql
+        networks:
+            - app-network
+
+    # Reverb WebSocket Server
+    reverb:
+        build: .
+        command: "php artisan reverb:start --debug"
+
+        container_name: reverb
+        ports:
+            - "${REVERB_PORT:-8080}:8080"
+        depends_on:
+            - app
+        networks:
+            - app-network
+
 networks:
-    sail:
+    app-network:
         driver: bridge
-volumes:
-    sail-mysql:
-        driver: local

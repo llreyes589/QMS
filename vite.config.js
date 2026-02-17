@@ -17,4 +17,16 @@ export default defineConfig({
             vue: "vue/dist/vue.esm-bundler.js",
         },
     },
+    // server: {
+    //     host: "0.0.0.0", // Allow connections from outside the container
+    //     hmr: {
+    //         host: "localhost", // The host the browser uses to connect
+    //     },
+    //     watch: {
+    //         usePolling: true, // Use polling if files aren't updating (common in WSL/Docker)
+    //     },
+    // },
+    // build: {
+    //     manifest: true,
+    // },
 });
